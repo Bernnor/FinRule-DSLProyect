@@ -1,0 +1,45 @@
+// ==============================================================================
+// Política Oficial de Crédito de Consumo - FinRule DSL v1.0
+// Universidad Científica del Sur - Lenguaje de Dominio Específico (2026)
+// ==============================================================================
+
+politica "CREDITO_CONSUMO" version "1.0" {
+  regla "R01_FRAUDE" prioridad 100
+    cuando alerta_fraude == verdadero
+    entonces revision("ALERTA_OPERACION_SOSPECHOSA");
+ 
+  regla "R02_IDENTIDAD" prioridad 90
+    cuando identidad_verificada == falso
+    entonces revision("IDENTIDAD_PENDIENTE");
+ 
+  regla "R03_DOCUMENTOS" prioridad 85
+    cuando documentos_verificados == falso
+    entonces revision("DOCUMENTACION_INCOMPLETA");
+ 
+  regla "R04_MORA_ALTA" prioridad 80
+    cuando dias_mora_vigente >= 30
+    entonces rechazar("MORA_ELEVADA");
+ 
+  regla "R05_MORA_LEVE" prioridad 75
+    cuando dias_mora_vigente > 0
+    entonces revision("MORA_PENDIENTE");
+ 
+  regla "R06_ENDEUDAMIENTO" prioridad 70
+    cuando ratio_cuota_ingreso > 0.40
+    entonces revision("CAPACIDAD_DE_PAGO");
+ 
+  regla "R07_PUNTAJE" prioridad 60
+    cuando puntaje_riesgo < 600
+    entonces revision("PUNTAJE_PARA_REVISION");
+ 
+  regla "R08_PREAPROBACION" prioridad 10
+    cuando alerta_fraude == falso y
+           identidad_verificada == verdadero y
+           documentos_verificados == verdadero y
+           dias_mora_vigente == 0 y
+           ratio_cuota_ingreso <= 0.40 y
+           puntaje_riesgo >= 600
+    entonces aprobar("ELEGIBLE_PRELIMINAR");
+ 
+  defecto revision("CASO_NO_CLASIFICADO");
+}
